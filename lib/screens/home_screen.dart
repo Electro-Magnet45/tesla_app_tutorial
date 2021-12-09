@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:tesla_animated_app/constanins.dart';
 import 'package:tesla_animated_app/home_controller.dart';
 import 'components/door_lock.dart';
+import 'components/tesla_navigationbar.dart';
 
-class HomeScreen extends StatelessWidget {
-  HomeScreen({Key? key}) : super(key: key);
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({Key? key}) : super(key: key);
 
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
   final HomeController _controller = HomeController();
 
   @override
@@ -14,6 +21,11 @@ class HomeScreen extends StatelessWidget {
         animation: _controller,
         builder: (context, _) {
           return Scaffold(
+            bottomNavigationBar: TeslaNavigationBar(
+                onTap: (index) {
+                  _controller.onBottomTabChange(index);
+                },
+                selectedTab: _controller.selectedBottomTab),
             body: SafeArea(
               child: LayoutBuilder(builder: (context, constrains) {
                 //to get constrains
@@ -28,34 +40,64 @@ class HomeScreen extends StatelessWidget {
                         width: double.infinity,
                       ),
                     ),
-                    Positioned(
-                      right: constrains.maxWidth * 0.05,
-                      child: DoorLock(
-                        isLock: _controller.isRightDoorLock,
-                        press: _controller.updateRightDoorLock,
+                    AnimatedPositioned(
+                      duration: defaultDuration,
+                      right: _controller.selectedBottomTab == 0
+                          ? constrains.maxWidth * 0.05
+                          : constrains.maxWidth / 2,
+                      child: AnimatedOpacity(
+                        duration: defaultDuration,
+                        opacity: _controller.selectedBottomTab == 0 ? 1 : 0,
+                        child: DoorLock(
+                          isLock: _controller.isRightDoorLock,
+                          press: _controller.updateRightDoorLock,
+                        ),
                       ),
                     ),
-                    Positioned(
-                      left: constrains.maxWidth * 0.05,
-                      child: DoorLock(
-                        isLock: _controller.isLeftDoorLock,
-                        press: _controller.updateLeftDoorLock,
+                    AnimatedPositioned(
+                      duration: defaultDuration,
+                      left: _controller.selectedBottomTab == 0
+                          ? constrains.maxWidth * 0.05
+                          : constrains.maxWidth / 2,
+                      child: AnimatedOpacity(
+                        duration: defaultDuration,
+                        opacity: _controller.selectedBottomTab == 0 ? 1 : 0,
+                        child: DoorLock(
+                          isLock: _controller.isLeftDoorLock,
+                          press: _controller.updateLeftDoorLock,
+                        ),
                       ),
                     ),
-                    Positioned(
-                      top: constrains.maxHeight * 0.13,
-                      child: DoorLock(
-                        isLock: _controller.isBonnetLock,
-                        press: _controller.updateBonnetDoorLock,
+                    AnimatedPositioned(
+                      duration: defaultDuration,
+                      top: _controller.selectedBottomTab == 0
+                          ? constrains.maxHeight * 0.13
+                          : constrains.maxHeight / 2,
+                      child: AnimatedOpacity(
+                        duration: defaultDuration,
+                        opacity: _controller.selectedBottomTab == 0 ? 1 : 0,
+                        child: DoorLock(
+                          isLock: _controller.isBonnetLock,
+                          press: _controller.updateBonnetDoorLock,
+                        ),
                       ),
                     ),
-                    Positioned(
-                      bottom: constrains.maxHeight * 0.17,
-                      child: DoorLock(
-                        isLock: _controller.isTrunkLock,
-                        press: _controller.updateTrunkDoorLock,
+                    AnimatedPositioned(
+                      duration: defaultDuration,
+                      bottom: _controller.selectedBottomTab == 0
+                          ? constrains.maxHeight * 0.17
+                          : constrains.maxHeight / 2,
+                      child: AnimatedOpacity(
+                        duration: defaultDuration,
+                        opacity: _controller.selectedBottomTab == 0 ? 1 : 0,
+                        child: DoorLock(
+                          isLock: _controller.isTrunkLock,
+                          press: _controller.updateTrunkDoorLock,
+                        ),
                       ),
                     ),
+                    SvgPicture.asset('assets/icons/Battery.svg',
+                        width: constrains.maxWidth * 0.45)
                   ],
                 );
               }),
