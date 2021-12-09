@@ -24,7 +24,7 @@ jobs:
       - uses: actions/cache@v1
         with:
           path: /opt/hostedtoolcache/flutter
-          key: windows-latest-flutter-install-cache-${{ env.flutter_version }}
+          key: ${{ runner.OS }}-flutter-install-cache-${{ env.flutter_version }}
 
       - name: Pub Get Packages
         run: flutter pub get
