@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:tesla_animated_app/screens/home_screen.dart';
 
 void main() {
@@ -16,7 +17,8 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
           brightness: Brightness.dark,
           primarySwatch: Colors.blue,
-          scaffoldBackgroundColor: Colors.black),
+          scaffoldBackgroundColor: Colors.black,
+          fontFamily: GoogleFonts.poppins().fontFamily),
       home: const HomeScreen(),
     );
   }

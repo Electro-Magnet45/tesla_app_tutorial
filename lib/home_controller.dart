@@ -2,16 +2,21 @@ import 'package:flutter/material.dart';
 
 class HomeController extends ChangeNotifier {
   int selectedBottomTab = 0;
+  bool isRightDoorLock = true;
+  bool isLeftDoorLock = true;
+  bool isBonnetLock = true;
+  bool isTrunkLock = true;
+  bool isCoolSelected = true;
+
+  void updateCoolTab() {
+    isCoolSelected = !isCoolSelected;
+    notifyListeners();
+  }
 
   void onBottomTabChange(int index) {
     selectedBottomTab = index;
     notifyListeners();
   }
-
-  bool isRightDoorLock = true;
-  bool isLeftDoorLock = true;
-  bool isBonnetLock = true;
-  bool isTrunkLock = true;
 
   void updateRightDoorLock() {
     isRightDoorLock = !isRightDoorLock;
