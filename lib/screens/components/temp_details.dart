@@ -4,7 +4,7 @@ import '../../constanins.dart';
 import '../../home_controller.dart';
 import 'temp_btn.dart';
 
-class TempDetails extends StatelessWidget {
+class TempDetails extends StatefulWidget {
   const TempDetails({
     Key? key,
     required HomeController controller,
@@ -12,6 +12,15 @@ class TempDetails extends StatelessWidget {
         super(key: key);
 
   final HomeController _controller;
+
+  @override
+  State<TempDetails> createState() => _TempDetailsState();
+}
+
+class _TempDetailsState extends State<TempDetails> {
+  num insideTemp = 29;
+  num outsideTemp = 35;
+  bool insideTempSelected = true;
 
   @override
   Widget build(BuildContext context) {
@@ -27,14 +36,14 @@ class TempDetails extends StatelessWidget {
                 TempBtn(
                     svgSrc: "assets/icons/coolShape.svg",
                     title: "Cool",
-                    isActive: _controller.isCoolSelected,
-                    press: _controller.updateCoolTab),
+                    isActive: widget._controller.isCoolSelected,
+                    press: widget._controller.updateCoolTab),
                 const SizedBox(width: defaultPadding),
                 TempBtn(
                     svgSrc: "assets/icons/heatShape.svg",
                     title: "Heat",
-                    isActive: !_controller.isCoolSelected,
-                    press: _controller.updateCoolTab,
+                    isActive: !widget._controller.isCoolSelected,
+                    press: widget._controller.updateCoolTab,
                     activeColor: redColor),
               ],
             ),
@@ -44,15 +53,23 @@ class TempDetails extends StatelessWidget {
             children: [
               IconButton(
                   padding: EdgeInsets.zero,
-                  onPressed: () {},
+                  onPressed: () {
+                    setState(() {
+                      insideTempSelected ? insideTemp++ : outsideTemp++;
+                    });
+                  },
                   icon: const Icon(Icons.arrow_drop_up, size: 48)),
-              const Text(
-                "29" "\u2103",
-                style: TextStyle(fontSize: 96),
+              Text(
+                "${insideTempSelected ? insideTemp : outsideTemp}" "\u2103",
+                style: const TextStyle(fontSize: 96),
               ),
               IconButton(
                   padding: EdgeInsets.zero,
-                  onPressed: () {},
+                  onPressed: () {
+                    setState(() {
+                      insideTempSelected ? insideTemp-- : outsideTemp--;
+                    });
+                  },
                   icon: const Icon(Icons.arrow_drop_down, size: 48)),
             ],
           ),
@@ -61,23 +78,45 @@ class TempDetails extends StatelessWidget {
           const SizedBox(height: defaultPadding),
           Row(
             children: [
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text("Inside".toUpperCase()),
-                Text("20" "\u2103",
-                    style: Theme.of(context).textTheme.headline5)
-              ]),
-              const SizedBox(width: defaultPadding),
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(
-                  "Outside".toUpperCase(),
-                  style: const TextStyle(color: Colors.white54),
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    insideTempSelected = !insideTempSelected;
+                  });
+                },
+                child: DefaultTextStyle(
+                  style: TextStyle(
+                      color:
+                          insideTempSelected ? Colors.white : Colors.white54),
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("Inside".toUpperCase()),
+                        Text("$insideTemp" "\u2103",
+                            style: const TextStyle(fontSize: 25))
+                      ]),
                 ),
-                Text("35" "\u2103",
-                    style: Theme.of(context)
-                        .textTheme
-                        .headline5!
-                        .copyWith(color: Colors.white54))
-              ]),
+              ),
+              const SizedBox(width: defaultPadding),
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    insideTempSelected = !insideTempSelected;
+                  });
+                },
+                child: DefaultTextStyle(
+                  style: TextStyle(
+                      color:
+                          insideTempSelected ? Colors.white54 : Colors.white),
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("Outside".toUpperCase()),
+                        Text("$outsideTemp" "\u2103",
+                            style: const TextStyle(fontSize: 25))
+                      ]),
+                ),
+              ),
             ],
           )
         ],

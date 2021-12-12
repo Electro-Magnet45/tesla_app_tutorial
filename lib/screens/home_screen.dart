@@ -8,6 +8,7 @@ import 'components/battery_status.dart';
 import 'components/door_lock.dart';
 import 'components/temp_details.dart';
 import 'components/tesla_navigationbar.dart';
+import 'components/tyres.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -78,6 +79,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   else if (_controller.selectedBottomTab == 2 && index != 2)
                     _tempAnimationController.reverse(from: 0.4);
 
+                  _controller.showTyreContr(index);
                   _controller.onBottomTabChange(index);
                 },
                 selectedTab: _controller.selectedBottomTab),
@@ -187,8 +189,68 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                               ? Image.asset("assets/images/Cool_glow_2.png",
                                   key: UniqueKey(), width: 200)
                               : Image.asset("assets/images/Hot_glow_4.png",
-                                  key: UniqueKey(), width: 200),
-                        ))
+                                  key: UniqueKey(), width: 190),
+                        )),
+                    if (_controller.isShowTyre) ...tyres(constrains),
+                    Padding(
+                      padding: const EdgeInsets.all(defaultPadding),
+                      child: GridView.builder(
+                          physics: const BouncingScrollPhysics(
+                              parent: AlwaysScrollableScrollPhysics()),
+                          itemCount: 4,
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 2,
+                                  mainAxisSpacing: defaultPadding,
+                                  crossAxisSpacing: defaultPadding,
+                                  childAspectRatio: constrains.maxWidth /
+                                      constrains.maxHeight),
+                          itemBuilder: (context, index) => Container(
+                                padding: const EdgeInsets.all(defaultPadding),
+                                decoration: BoxDecoration(
+                                    color: Colors.white10,
+                                    borderRadius: BorderRadius.circular(30),
+                                    border: Border.all(
+                                        color: primaryColor, width: 2)),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text.rich(TextSpan(
+                                        text: "23.6",
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .headline4!
+                                            .copyWith(
+                                                fontWeight: FontWeight.w600,
+                                                color: Colors.white),
+                                        children: const [
+                                          TextSpan(
+                                              text: "psi",
+                                              style: TextStyle(fontSize: 24))
+                                        ])),
+                                    const SizedBox(height: defaultPadding),
+                                    const Text(
+                                      "41\u2103",
+                                      style: TextStyle(fontSize: 16),
+                                    ),
+                                    const Spacer(),
+                                    Text(
+                                      "Low".toUpperCase(),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .headline3!
+                                          .copyWith(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w600),
+                                    ),
+                                    Text(
+                                      "Presure".toUpperCase(),
+                                      style: const TextStyle(fontSize: 20),
+                                    )
+                                  ],
+                                ),
+                              )),
+                    )
                   ],
                 );
               }),

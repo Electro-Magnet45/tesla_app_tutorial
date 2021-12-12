@@ -7,6 +7,19 @@ class HomeController extends ChangeNotifier {
   bool isBonnetLock = true;
   bool isTrunkLock = true;
   bool isCoolSelected = true;
+  bool isShowTyre = false;
+
+  void showTyreContr(int index) {
+    if (selectedBottomTab != 3 && index == 3) {
+      Future.delayed(const Duration(milliseconds: 400), () {
+        isShowTyre = true;
+        notifyListeners();
+      });
+    } else {
+      isShowTyre = false;
+      notifyListeners();
+    }
+  }
 
   void updateCoolTab() {
     isCoolSelected = !isCoolSelected;
