@@ -24,7 +24,7 @@ jobs:
       - uses: actions/cache@v1
         with:
           path: /opt/hostedtoolcache/flutter
-          key: Linux-flutter-install-cache-${{ env.flutter_version }}
+          key: Linux-flutter-install-cache-stable
 
       - name: Pub Get Packages
         run: flutter pub get
