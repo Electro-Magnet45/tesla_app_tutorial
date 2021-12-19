@@ -3,11 +3,13 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:tesla_animated_app/constanins.dart';
 import 'package:tesla_animated_app/home_controller.dart';
+import 'package:tesla_animated_app/models/tyre_psi.dart';
 
 import 'components/battery_status.dart';
 import 'components/door_lock.dart';
 import 'components/temp_details.dart';
 import 'components/tesla_navigationbar.dart';
+import 'components/tyre_psi_card.dart';
 import 'components/tyres.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -19,12 +21,20 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   final HomeController _controller = HomeController();
-  late AnimationController _batteryAnimController, _tempAnimationController;
+  late int tabIndex = 1;
+  late AnimationController _batteryAnimController,
+      _tempAnimationController,
+      _tyreAnimController;
   late Animation<double> _animationBattery,
       _animBatteryStatus,
       _animationCarShift,
       _animTempShowInfo,
-      _animationCoolGlow;
+      _animationCoolGlow,
+      _animationTyre1Psi,
+      _animationTyre2Psi,
+      _animationTyre3Psi,
+      _animationTyre4Psi;
+  late List<Animation<double>> _tyreAnimations;
 
   void setUpBatteryAnim() {
     _batteryAnimController = AnimationController(
@@ -47,10 +57,32 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         parent: _tempAnimationController, curve: const Interval(0.7, 1));
   }
 
+  void setUpTyreAnim() {
+    _tyreAnimController = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 1200));
+
+    //1200 * 0.34 = 400
+    _animationTyre1Psi = CurvedAnimation(
+        parent: _tyreAnimController, curve: const Interval(0.34, 0.5));
+    _animationTyre2Psi = CurvedAnimation(
+        parent: _tyreAnimController, curve: const Interval(0.5, 0.66));
+    _animationTyre3Psi = CurvedAnimation(
+        parent: _tyreAnimController, curve: const Interval(0.66, 0.82));
+    _animationTyre4Psi = CurvedAnimation(
+        parent: _tyreAnimController, curve: const Interval(0.82, 1));
+  }
+
   @override
   void initState() {
     setUpBatteryAnim();
     setUpTempAnim();
+    setUpTyreAnim();
+    _tyreAnimations = [
+      _animationTyre1Psi,
+      _animationTyre2Psi,
+      _animationTyre3Psi,
+      _animationTyre4Psi
+    ];
     super.initState();
   }
 
@@ -58,18 +90,26 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   void dispose() {
     _batteryAnimController.dispose();
     _tempAnimationController.dispose();
+    _tyreAnimController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-        animation: Listenable.merge(
-            [_controller, _batteryAnimController, _tempAnimationController]),
+        animation: Listenable.merge([
+          _controller,
+          _batteryAnimController,
+          _tempAnimationController,
+          _tyreAnimController
+        ]),
         builder: (context, _) {
           return Scaffold(
             bottomNavigationBar: TeslaNavigationBar(
                 onTap: (index) {
+                  setState(() {
+                    tabIndex = index;
+                  });
                   if (index == 1)
                     _batteryAnimController.forward();
                   else if (_controller.selectedBottomTab == 1 && index != 1)
@@ -78,8 +118,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     _tempAnimationController.forward();
                   else if (_controller.selectedBottomTab == 2 && index != 2)
                     _tempAnimationController.reverse(from: 0.4);
+                  if (index == 3)
+                    _tyreAnimController.forward();
+                  else if (_controller.selectedBottomTab == 3 && index != 3)
+                    _tyreAnimController.reverse();
 
                   _controller.showTyreContr(index);
+                  _controller.tyreStatusContr(index);
                   _controller.onBottomTabChange(index);
                 },
                 selectedTab: _controller.selectedBottomTab),
@@ -161,96 +206,66 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                         ),
                       ),
                     ),
-                    Opacity(
-                      opacity: _batteryAnimController.value,
-                      child: SvgPicture.asset('assets/icons/Battery.svg',
-                          width: constrains.maxWidth * 0.45),
-                    ),
-                    Positioned(
-                      top: 50 * (1 - _animBatteryStatus.value),
-                      height: constrains.maxHeight,
-                      width: constrains.maxWidth,
-                      child: Opacity(
-                          opacity: _animBatteryStatus.value,
-                          child: BatteryStatus(constrains: constrains)),
-                    ),
-                    Positioned(
+                    if (tabIndex == 1)
+                      AnimatedOpacity(
+                        opacity: _batteryAnimController.value,
+                        duration: const Duration(milliseconds: 50),
+                        child: SvgPicture.asset('assets/icons/Battery.svg',
+                            width: constrains.maxWidth * 0.45),
+                      ),
+                    if (tabIndex == 1)
+                      Positioned(
+                        top: 50 * (1 - _animBatteryStatus.value),
                         height: constrains.maxHeight,
                         width: constrains.maxWidth,
-                        top: 60 * (1 - _animTempShowInfo.value),
-                        child: Opacity(
-                            opacity: _animTempShowInfo.value,
-                            child: TempDetails(controller: _controller))),
-                    Positioned(
-                        right: -180 * (1 - _animationCoolGlow.value),
-                        child: AnimatedSwitcher(
-                          duration: defaultDuration,
-                          child: _controller.isCoolSelected
-                              ? Image.asset("assets/images/Cool_glow_2.png",
-                                  key: UniqueKey(), width: 200)
-                              : Image.asset("assets/images/Hot_glow_4.png",
-                                  key: UniqueKey(), width: 190),
-                        )),
+                        child: AnimatedOpacity(
+                            opacity: _animBatteryStatus.value,
+                            duration: const Duration(milliseconds: 50),
+                            child: BatteryStatus(constrains: constrains)),
+                      ),
+                    if (tabIndex == 2)
+                      Positioned(
+                          height: constrains.maxHeight,
+                          width: constrains.maxWidth,
+                          top: 60 * (1 - _animTempShowInfo.value),
+                          child: AnimatedOpacity(
+                              opacity: _animTempShowInfo.value,
+                              duration: const Duration(milliseconds: 50),
+                              child: TempDetails(controller: _controller))),
+                    if (tabIndex == 2)
+                      Positioned(
+                          right: -180 * (1 - _animationCoolGlow.value),
+                          child: AnimatedSwitcher(
+                            duration: defaultDuration,
+                            child: _controller.isCoolSelected
+                                ? Image.asset("assets/images/Cool_glow_2.png",
+                                    key: UniqueKey(), width: 200)
+                                : Image.asset("assets/images/Hot_glow_4.png",
+                                    key: UniqueKey(), width: 190),
+                          )),
                     if (_controller.isShowTyre) ...tyres(constrains),
-                    Padding(
-                      padding: const EdgeInsets.all(defaultPadding),
-                      child: GridView.builder(
-                          physics: const BouncingScrollPhysics(
-                              parent: AlwaysScrollableScrollPhysics()),
-                          itemCount: 4,
-                          gridDelegate:
-                              SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 2,
-                                  mainAxisSpacing: defaultPadding,
-                                  crossAxisSpacing: defaultPadding,
-                                  childAspectRatio: constrains.maxWidth /
-                                      constrains.maxHeight),
-                          itemBuilder: (context, index) => Container(
-                                padding: const EdgeInsets.all(defaultPadding),
-                                decoration: BoxDecoration(
-                                    color: Colors.white10,
-                                    borderRadius: BorderRadius.circular(30),
-                                    border: Border.all(
-                                        color: primaryColor, width: 2)),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text.rich(TextSpan(
-                                        text: "23.6",
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .headline4!
-                                            .copyWith(
-                                                fontWeight: FontWeight.w600,
-                                                color: Colors.white),
-                                        children: const [
-                                          TextSpan(
-                                              text: "psi",
-                                              style: TextStyle(fontSize: 24))
-                                        ])),
-                                    const SizedBox(height: defaultPadding),
-                                    const Text(
-                                      "41\u2103",
-                                      style: TextStyle(fontSize: 16),
-                                    ),
-                                    const Spacer(),
-                                    Text(
-                                      "Low".toUpperCase(),
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .headline3!
-                                          .copyWith(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.w600),
-                                    ),
-                                    Text(
-                                      "Presure".toUpperCase(),
-                                      style: const TextStyle(fontSize: 20),
-                                    )
-                                  ],
-                                ),
-                              )),
-                    )
+                    if (_controller.isShowTyreStatus)
+                      Padding(
+                        padding: const EdgeInsets.all(defaultPadding),
+                        child: GridView.builder(
+                            physics: const BouncingScrollPhysics(
+                                parent: AlwaysScrollableScrollPhysics()),
+                            itemCount: 4,
+                            gridDelegate:
+                                SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 2,
+                                    mainAxisSpacing: defaultPadding,
+                                    crossAxisSpacing: defaultPadding,
+                                    childAspectRatio: constrains.maxWidth /
+                                        constrains.maxHeight),
+                            itemBuilder: (context, index) => ScaleTransition(
+                                  scale: _tyreAnimations[index],
+                                  child: TyrepsiCard(
+                                    isBottomTwoTyre: index > 1,
+                                    tyrePsi: demoPsiList[index],
+                                  ),
+                                )),
+                      )
                   ],
                 );
               }),
